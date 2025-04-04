@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資金管理計算ツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+        input {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            min-height: 44px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>資金管理計算フォーム</h2>
+    
+    <label for="capital">資金量 (円)</label>
+    <input type="number" id="capital" oninput="validateInput(this)">
+
+    <label for="riskPercent">損切り (%)</label>
+    <input type="number" id="riskPercent" oninput="validateInput(this)">
+
+    <label for="stopLoss">損切り幅 (Pips)</label>
+    <input type="number" id="stopLoss" oninput="validateInput(this)">
+
+    <label for="exchangeRate">日本円換算値</label>
+    <input type="number" id="exchangeRate" oninput="validateInput(this)">
+
+    <button id="calculateBtn">計算</button>
+
+    <div class="result">
+        <p>ロット数: <span id="lotSize">0</span></p>
+        <p style="margin-top: 10px; font-size: 0.7em; color: #555;">
+            日本円換算値はクロス円なら100、
+        </p>
+        <p style="font-size: 0.7em; color: #555;">
+            それ以外は後半の通貨のクロス円を入力
+        </p>
+    </div>
+</div>
+
+<script>
+// 入力値のバリデーション（スマホ対策）
+function validateInput(input) {
+    input.value = input.value.replace(/[^0-9.]/g, ''); // 数字と小数点以外を削除
+}
+
+// 計算ボタンのイベントリスナー
+document.getElementById("calculateBtn").addEventListener("click", calculateLotSize);
+
+function calculateLotSize() {
+    const capital = parseFloat(document.getElementById("capital").value) || 0;
+    const riskPercent = parseFloat(document.getElementById("riskPercent").value) || 0;
+    const stopLoss = parseFloat(document.getElementById("stopLoss").value) || 0;
+    const exchangeRate = parseFloat(document.getElementById("exchangeRate").value) || 0;
+
+    if (capital === 0 || riskPercent === 0 || stopLoss === 0 || exchangeRate === 0) {
+        alert("すべての項目を正しく入力してください。");
+        return;
+    }
+
+    // 計算式: (資金量 * 損切％) / 損切幅 / 日本円換算 / 10
+    const lotSize = (capital * (riskPercent / 100)) / (stopLoss * exchangeRate * 10);
+    document.getElementById("lotSize").innerText = lotSize.toFixed(3);
+}
+</script>
+
+</body>
+</html>
+
